@@ -8,6 +8,7 @@
     "development": "en",
     "supported": [
       "Base",
+      "de",
     ],
   },
   "files": [
@@ -143,6 +144,7 @@
     "ONLY_ACTIVE_ARCH[config=Debug]": "YES",
     "SWIFT_ACTIVE_COMPILATION_CONDITIONS[config=Debug]": "DEBUG $(inherited)",
     "SWIFT_COMPILATION_MODE[config=Release]": "wholemodule",
+    "SWIFT_EMIT_LOC_STRINGS": "YES",
     "SWIFT_OPTIMIZATION_LEVEL[config=Debug]": "-Onone",
   },
   "last-upgrade": "27.2",
