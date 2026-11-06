@@ -1,5 +1,8 @@
 # 🍳 CookFresh
 
+![Static Badge](https://img.shields.io/badge/GitHub-repo-blue?logo=github)
+
+
 > **A native macOS recipe manager and kitchen assistant built with SwiftUI.**
 
 CookFresh is a modern, native macOS application designed to streamline your cooking workflow. It goes beyond a simple digital cookbook by acting as an intelligent kitchen assistant right on your Mac—helping you organize your favorite meals, plan grocery shopping, and guiding you step-by-step through the cooking process.
@@ -54,4 +57,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-*Developed with ❤️ by [Olaf Lueg](https://github.com)olueg
+*Developed with ❤️ by [Olaf Lueg](https://github.com/olueg)
