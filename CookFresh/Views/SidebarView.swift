@@ -49,6 +49,7 @@ struct SidebarView: View {
         .listStyle(.sidebar)
     }
     
+    // MARK: -   add a new session
     private func addSession(){
         withAnimation{
             let newSession = ChatSession(title: "New Session", createdAt: Date())
@@ -62,6 +63,7 @@ struct SidebarView: View {
         }
     }
     
+    // MARK: - Delete the selected session
     private func deleteSession(offsets: IndexSet){
         withAnimation{
             for index in offsets {
@@ -72,6 +74,8 @@ struct SidebarView: View {
         }
         
     }
+    
+    // Delete the selected session
     private func deleteSession(session: ChatSession){
         withAnimation{
             modelContext.delete(session)
