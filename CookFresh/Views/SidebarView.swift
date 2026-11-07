@@ -50,6 +50,8 @@ struct SidebarView: View {
     }
     
     // MARK: -   add a new session
+    
+    /// Creates a new chat session and adds it to the data model
     private func addSession(){
         withAnimation{
             let newSession = ChatSession(title: "New Session", createdAt: Date())
@@ -64,6 +66,10 @@ struct SidebarView: View {
     }
     
     // MARK: - Delete the selected session
+    
+    /// Delete the selected session from the data model
+    ///
+    /// Input: 'IndexSet'
     private func deleteSession(offsets: IndexSet){
         withAnimation{
             for index in offsets {

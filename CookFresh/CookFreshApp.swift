@@ -28,5 +28,8 @@ struct CookFreshApp: App {
             RootView()
         }
         .modelContainer(sharedModelContainer)
+        Settings{
+            SettingsView()
+        }
     }
 }
