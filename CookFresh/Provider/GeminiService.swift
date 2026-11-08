@@ -11,7 +11,7 @@ struct GeminiModelsResponse: Codable {
     let models: [GeminiModel]
 }
 
-struct GeminiModel: Codable, Identifiable {
+struct GeminiModel: Codable, Identifiable, Hashable {
     var id: String {name}
     let name: String
     let displayName: String?
