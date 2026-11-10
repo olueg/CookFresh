@@ -37,7 +37,7 @@ struct ChatView: View {
                             .padding(.vertical, 8)
                     }
                     TextEditor(text: $input)
-                        .font(.body) 
+                        .font(.body)
                         .lineSpacing(5) // Give more space
                         .frame(minHeight: 40, maxHeight: 120)
                         .scrollContentBackground(.hidden)
@@ -45,6 +45,19 @@ struct ChatView: View {
                         .background(Color.clear)
                 }
                 
+                
+
+            }
+
+            
+            HStack {
+                Spacer()
+                Text(selectedModelDescription)
+                    .font(.caption)
+                    .foregroundStyle(Color.secondary)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 10)
+                   
                 
                 Button(action: { Task { await send() } }) {
                     Image(systemName: "paperplane.fill")
@@ -59,22 +72,15 @@ struct ChatView: View {
                 .padding(.bottom, 6)
                 .padding(.trailing, 6)
             }
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(.quaternarySystemFill))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
-            )
-            
-            HStack {
-                Spacer()
-                Text(selectedModelDescription)
-                    .font(.caption)
-                    .foregroundStyle(Color.secondary)
-            }
         }
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.quaternarySystemFill))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+        )
         .padding()
     }
     
