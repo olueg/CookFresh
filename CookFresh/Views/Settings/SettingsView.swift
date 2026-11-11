@@ -12,19 +12,25 @@ struct SettingsView: View {
     var body: some View {
         NavigationSplitView {
             List{
-                NavigationLink(destination: ProviderSettings()) {
+
+                NavigationLink(destination: AIProvidersView()) {
                     Label("AI Provider", systemImage: "gear")
                 }
+
             }
             .toolbar(removing: .sidebarToggle)
             .navigationTitle("Settings")
         } detail: {
-            Text("Select your settings")
+            NavigationStack{
+                Text("Select your settings")
+            }
         }
         .frame(minWidth: 400, minHeight: 300)
+        
     }
 }
 
 #Preview {
     SettingsView()
 }
+

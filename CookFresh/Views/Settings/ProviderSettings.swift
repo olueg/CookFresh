@@ -8,11 +8,15 @@
 import SwiftUI
 
 struct ProviderSettings: View {
+    @Environment(\.dismiss) private var dismiss
+    let account: AccountItem
     @AppStorage("gemini_api_key") private var apiKey: String = ""
     @AppStorage("FreshCookModel") private var selectedModel: String = ""
     @AppStorage("FreshCookModelDescription") private var selectedModelDescription: String = ""
     @State private var models: [GeminiModel] = []
     var body: some View {
+        
+        
         Form {
             Section("Gemini") {
                 SecureField("API Key", text: $apiKey)
@@ -55,12 +59,86 @@ struct ProviderSettings: View {
                     }
                 }
             }
+            Section {
+                VStack{
+                    // hier kommt eine list rein
+                }
+
+                
+                .frame(width: 400, height: 150)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color(.quaternarySystemFill))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+                )
+                .padding(.bottom, 1)
+                // Add / Remove Model
+                // Add / Remove Model Bar
+                HStack(spacing: 1) {
+                    Button(action: addModel) {
+                        Image(systemName: "plus")
+                            .frame(width: 12, height: 12)
+                    }
+                    .buttonStyle(.bordered) // Sieht auf macOS wie ein Button aus
+                    
+                    Button(action: addModel) {
+                        Image(systemName: "minus")
+                            .frame(width: 12, height: 12)
+                    }
+                    .buttonStyle(.bordered)
+                }
+                .padding(.top, -5) // Kleiner Abstand nach oben zur Liste
+                .padding(.leading, 5)
+                
+            }
         }
-        .navigationTitle("AI Provider")
+        .task {
+            do {
+                models = try await GeminiService.shared.fetchGeminiModels(apiKey: apiKey)
+                print(models)
+            } catch {
+                // You might want to surface this error to the user in the future
+                print("Failed to fetch models: \(error)")
+                models = []
+            }
+        }
+        .navigationTitle(account.name)
+        .toolbarRole(.editor)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigation) {
+                Button(action: { dismiss() }) {
+                    Label("Zurück", systemImage: "chevron.left")
+                }
+            }
+        }
         .padding()
+    }
+        
+    
+    private func addModel() {
+        List {
+            ForEach(models, id: \.id) { model in
+                Text(model.description ?? model.name)
+            }
+        }
+        
+    }
+    
+    private func removeModel() {
+        
     }
 }
 
+
+
+
+
 #Preview {
-    ProviderSettings()
+    NavigationStack {
+        ProviderSettings(account: AccountItem(name: "Preview Account", description: "For preview only", iconName: "sparkles", iconColor: .blue))
+    }
 }

@@ -12,7 +12,7 @@ import SwiftData
 struct CookFreshApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            ChatMessage.self, ChatSession.self,
+            ChatMessage.self, ChatSession.self, GeminiServiceModel.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

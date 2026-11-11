@@ -49,7 +49,9 @@ class GeminiService {
             }
             
             let decodedResponse = try JSONDecoder().decode(GeminiModelsResponse.self, from: data)
+        print(decodedResponse.self)
             return decodedResponse.models
+        
         
     }
 }
