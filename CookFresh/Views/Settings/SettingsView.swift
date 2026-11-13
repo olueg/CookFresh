@@ -2,35 +2,27 @@
 //  SettingsView.swift
 //  CookFresh
 //
-//  Created by Olaf Lueg on 07.11.26.
+//  Created by Olaf Lueg on 13.11.26.
 //
-// Licence: MIT
 
 import SwiftUI
 
 struct SettingsView: View {
     var body: some View {
-        NavigationSplitView {
-            List{
-
-                NavigationLink(destination: AIProvidersView()) {
-                    Label("AI Provider", systemImage: "gear")
+        TabView{
+            GeneralView()
+                .tabItem {
+                    Label("General", systemImage: "gearshape")
                 }
-
-            }
-            .toolbar(removing: .sidebarToggle)
-            .navigationTitle("Settings")
-        } detail: {
-            NavigationStack{
-                Text("Select your settings")
-            }
+            AIProviderView()
+                .tabItem {
+                    Label("AI Provider", systemImage: "sparkles")
+                }
         }
-        .frame(minWidth: 400, minHeight: 300)
-        
+        .frame(width: 500, height: 300)
     }
 }
 
 #Preview {
     SettingsView()
 }
-

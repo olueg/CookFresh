@@ -30,6 +30,7 @@ struct CookFreshApp: App {
         .modelContainer(sharedModelContainer)
         Settings{
             SettingsView()
+                .background(.ultraThinMaterial) // Das gibt dir den "Apple-Look" für das ganze Fenster
         }
     }
 }

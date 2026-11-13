@@ -106,11 +106,10 @@ struct ProviderSettings: View {
             }
         }
         .navigationTitle(account.name)
-        .toolbarRole(.editor)
-        .navigationBarBackButtonHidden(true)
+        .navigationBarBackButtonHidden(true)   // System-Button ausblenden
         .toolbar {
             ToolbarItem(placement: .navigation) {
-                Button(action: { dismiss() }) {
+                Button { dismiss() } label: {
                     Label("Zurück", systemImage: "chevron.left")
                 }
             }
