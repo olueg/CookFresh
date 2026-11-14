@@ -12,21 +12,8 @@
     ],
   },
   "files": [
+    { "kind": "folder", "path": "CookFresh", "target-membership": [ "CookFresh" ] },
     {
-      "kind": "folder",
-      "path": "CookFresh",
-      "target-membership": [
-        "CookFresh",
-      ],
-      "membership-exceptions": [
-        {
-          "target": "CookFresh",
-          "exclusions": [
-            "Views/Settings-old/SettingsView.swift",
-          ],
-        },
-      ],
-    }, {
       "kind": "group",
       "name": "Products",
       "children": [
