@@ -1,13 +1,13 @@
 //
-//  AIProviderView.swift
+//  AIProvidersView.swift
 //  CookFresh
 //
-//  Created by Olaf Lueg on 13.11.26.
+//  Created by Olaf Lueg on 11.11.26.
 //
 
 import SwiftUI
 
-struct AccountItem: Identifiable, Hashable {
+struct AccountItem: Identifiable {
     let id = UUID()
     let name: String
     let description: String
@@ -16,8 +16,8 @@ struct AccountItem: Identifiable, Hashable {
 }
 
 struct AIProviderView: View {
-    @State private var selectedTab = 0
-    @State private var selecteProvidr: AccountItem?
+    
+    @State private var selectedAccount: AccountItem?
     
     let accounts: [AccountItem] = [
         AccountItem(name: "Gemini AI", description: "API Key und Modell-Konfiguration", iconName: "sparkles", iconColor: .blue),
@@ -26,37 +26,90 @@ struct AIProviderView: View {
     ]
     
     var body: some View {
-        // 1. NavigationStack ist zwingend für die Navigation!
-        NavigationStack {
-            HStack(alignment: .top) {
-                // 2. Liste direkt hier. Kein Hintergrund-VStack nötig!
-                List(accounts, selection: $selecteProvidr) { account in
-                    NavigationLink(value: account) {
-                        Label(account.name, systemImage: account.iconName)
+        VStack{
+            ForEach(accounts) { account in
+                // Detail-View verknüpfen (mit eigenem Titel für einen sauberen Zurück-Button)
+                // NavigationLink(destination: ProviderSettings(account: account)) {
+                HStack(spacing: 12) {
+                    // Icon mit farbigem Hintergrund
+                    Image(systemName: account.iconName)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 28, height: 28)
+                        .background(account.iconColor)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(account.name)
+                            .font(.body)
+                            .fontWeight(.medium)
+                        Text(account.description)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
-                }
-                .listStyle(.automatic) // Apple-konform
-                .frame(width: 200)
-                
-                // 3. Deine Picker-Sektion
-                VStack {
-                    Picker("", selection: $selectedTab) {
-                        Text("Option 1").tag(0)
-                        Text("Option 2").tag(1)
-                        Text("Option 3").tag(2)
-                    }
-                    .pickerStyle(.segmented)
+                    
                     Spacer()
+                    Button(action: { selectedAccount = account })
+                    {
+                        Text("Ändern...")
+                            .font(.subheadline)
+                    }
+                    .buttonStyle(.bordered)
+
                 }
-                .padding()
+                .padding([.leading, .trailing])
+                .padding(.vertical, 4)
+                .contentShape(Rectangle()) 
+
             }
-            .navigationTitle("Internetaccounts")
-            .toolbarRole(.editor)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color(.quaternarySystemFill))
+            )
+            //}
+            
+            // Info area
+            HStack {
+                Spacer()
+                Button(action: {
+                    // Aktion zum Hinzufügen
+                }) {
+                    Text("Account hinzufügen...")
+                        .font(.subheadline)
+                }
+                .buttonStyle(.bordered)
+                
+                // Round help button
+                Button(action: {}) {
+                    Image(systemName: "questionmark")
+                        .font(.system(size: 10, weight: .bold))
+                        .frame(width: 22, height: 22)
+                        .background(
+                            Circle()
+                                .fill(Color.secondary.opacity(0.15))
+                        )
+                        .overlay(
+                            Circle()
+                                .stroke(Color.secondary.opacity(0.4), lineWidth: 1)
+                        )
+                }
+                .buttonStyle(.borderless)
+                .accessibilityLabel("Hilfe")
+            }
+            .foregroundStyle(.secondary)
+            .padding(.top, 4)
+            
         }
+        .sheet(item: $selectedAccount) { account in // opens the shhet when selectedAccount != nil
+            ProviderSettings(account: account)
+        }
+#if os(macOS)
+            .formStyle(.grouped)
+#endif
     }
 }
 
 #Preview {
     AIProviderView()
-        .frame(width: 500, height: 300)
+        .frame(width: 500, height: 400)
 }

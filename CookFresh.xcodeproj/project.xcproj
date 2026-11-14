@@ -22,7 +22,6 @@
         {
           "target": "CookFresh",
           "exclusions": [
-            "Views/Settings-old/ProviderSettings.swift",
             "Views/Settings-old/SettingsView.swift",
           ],
         },

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ProviderSettings: View {
     @Environment(\.dismiss) private var dismiss
-    let account: AccountItem
+    var account: AccountItem
     @AppStorage("gemini_api_key") private var apiKey: String = ""
     @AppStorage("FreshCookModel") private var selectedModel: String = ""
     @AppStorage("FreshCookModelDescription") private var selectedModelDescription: String = ""
