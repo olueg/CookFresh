@@ -15,6 +15,12 @@ struct AccountItem: Identifiable {
     let iconColor: Color
 }
 
+/// A view that lists available AI providers and navigates to their configuration.
+///
+/// Displays a list of supported providers (Gemini, Ollama, ChatGPT). Tapping a
+/// provider pushes ``ProviderSettings`` onto the navigation stack.
+///
+/// - Note: Requires ``AccountItem`` to conform to `Identifiable` and `Hashable`.
 struct AIProviderView: View {
     
     @State private var selectedAccount: AccountItem?

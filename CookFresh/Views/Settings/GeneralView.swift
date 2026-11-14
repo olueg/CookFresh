@@ -7,6 +7,11 @@
 
 import SwiftUI
 
+/// Displays general application settings.
+///
+/// Shows the currently selected AI model name and its description, read from
+/// `@AppStorage` keys `FreshCookModel` and `FreshCookModelDescription`.
+/// The values are updated when the user selects a model in the provider settings.
 struct GeneralView: View {
     @AppStorage("FreshCookModel") private var selectedModel: String = ""
     @AppStorage("FreshCookModelDescription") private var selectedModelDescription: String = ""

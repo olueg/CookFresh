@@ -7,6 +7,16 @@
 
 import SwiftUI
 
+/// The main settings window for CookFresh.
+///
+/// Presents a tabbed interface with two sections:
+/// - **General**: Displays the currently selected AI model and its description.
+/// - **AI Provider**: Allows configuration of AI providers (Gemini, Ollama, ChatGPT).
+///
+/// Designed for use as the `Settings` scene in `CookFreshApp`. The window
+/// uses a fixed size of 500×300 points.
+///
+/// - SeeAlso: ``GeneralView``, ``AIProviderView``
 struct SettingsView: View {
     var body: some View {
         TabView{

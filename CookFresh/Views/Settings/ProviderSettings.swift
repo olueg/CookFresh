@@ -7,6 +7,14 @@
 
 import SwiftUI
 
+/// Configuration view for a single AI provider.
+///
+/// Renders a form tailored to the given ``AccountItem``:
+/// - **Gemini AI**: API key, model fetching, model picker, description.
+/// - **Ollama (Lokal)**: Endpoint URL and model name.
+/// - **ChatGPT**: API key and model name.
+///
+/// Settings are persisted via `@AppStorage`.
 struct ProviderSettings: View {
     @Environment(\.dismiss) private var dismiss
     var account: AccountItem
