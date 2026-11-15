@@ -6,19 +6,22 @@
 //
 
 import SwiftUI
+import SwiftData
 public import Combine
 
 
 struct ChatView: View {
+    @Binding var selectedSession: ChatSession?
+    @Environment(\.modelContext) private var modelContext
+
     @State private var input: String = ""
-    
+
     @AppStorage("FreshCookModel") private var selectedModel: String = ""
     @AppStorage("FreshCookModelDescription") private var selectedModelDescription: String = ""
     @AppStorage("gemini_api_key") private var apiKey: String = ""
 
     @State private var isGenerating: Bool = false
     @State private var gernerationStart: Date?
-    @State private var messages: [ChatMessage] = []
     
     var body: some View {
         VStack(spacing: 0) {
@@ -28,13 +31,22 @@ struct ChatView: View {
                     startDate: gernerationStart ?? Date()
                 )
             }
-            ScrollView {
-                LazyVStack(spacing: 8) {
-                    ForEach(messages) { message in
-                        MessageBubble(message: message)
-                    }
+            if selectedSession == nil {
+                VStack {
+                    Spacer()
+                    Text("Wähle oder erstelle eine Session")
+                        .foregroundStyle(.secondary)
+                    Spacer()
                 }
-                .padding()
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: 8) {
+                        ForEach(selectedSession?.messages ?? []) { message in
+                            MessageBubble(message: message)
+                        }
+                    }
+                    .padding()
+                }
             }
             // Container für TextEditor und integrierten Send-Button (fest am unteren Rand)
             VStack(spacing: 0) {
@@ -97,29 +109,67 @@ struct ChatView: View {
     }
     
     private func send() async {
+        guard !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+
+        // Ensure a session exists
+        if selectedSession == nil {
+            let newSession = ChatSession(title: "New Chat", createdAt: Date())
+            modelContext.insert(newSession)
+            try? modelContext.save()
+            selectedSession = newSession
+        }
+        guard let session = selectedSession else { return }
+
         isGenerating = true
         gernerationStart = Date()
         let prompt = input
         let start = Date()
         input = ""
-        messages.append(ChatMessage(role: "user", content: prompt, timestamp: Date()))
+
+        let userMessage = ChatMessage(role: "user", content: prompt, timestamp: Date(), session: session)
+        modelContext.insert(userMessage)
+        session.messages.append(userMessage)
+        try? modelContext.save()
+
+        let assistantMessage = ChatMessage(role: "assistant", content: "", timestamp: Date(), session: session)
+        modelContext.insert(assistantMessage)
+        session.messages.append(assistantMessage)
+        try? modelContext.save()
+
         do {
-            let result = try await GeminiService.shared.generateContent(
-                prompt: prompt,
+            let history = session.messages.filter { !($0.content?.isEmpty ?? true) }
+            let stream = GeminiService.shared.generateContentStream(
+                history: history,
                 model: selectedModel,
                 apiKey: apiKey
             )
+            var accumulated = ""
+            for try await chunk in stream {
+                accumulated += chunk
+                assistantMessage.content = accumulated
+                try? modelContext.save()
+            }
             let elapsed = Int(Date().timeIntervalSince(start) * 1000)
-            messages.append(ChatMessage(role: "assistant", content: result, timestamp: Date(), responseTime: elapsed))
+            assistantMessage.responseTime = elapsed
+            try? modelContext.save()
+
+            // Auto-title from first user message
+            if session.title == "New Chat" || session.title == nil {
+                session.title = String(prompt.prefix(40))
+                try? modelContext.save()
+            }
         } catch {
-            messages.append(ChatMessage(role: "assistant", content: "Fehler: \(error.localizedDescription)", timestamp: Date()))
+            assistantMessage.content = "Fehler: \(error.localizedDescription)"
+            try? modelContext.save()
         }
         isGenerating = false
     }
 }
 
 #Preview {
-    ChatView()
+    @Previewable @State var selectedSession: ChatSession? = nil
+    ChatView(selectedSession: $selectedSession)
+        .modelContainer(for: ChatSession.self, inMemory: true)
 }
 
 struct GeneratingIndicator: View {

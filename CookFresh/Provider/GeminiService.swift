@@ -18,7 +18,13 @@ struct GenerateContentRequest: Codable {
         struct Part: Codable {
             let text: String
         }
+        let role: String?
         let parts: [Part]
+
+        init(role: String? = nil, parts: [Part]) {
+            self.role = role
+            self.parts = parts
+        }
     }
     let contents: [Content]
 }
@@ -87,7 +93,7 @@ class GeminiService {
         guard let url = URL(string: urlString) else { throw URLError(.badURL) }
 
         let request = GenerateContentRequest(contents: [
-            .init(parts: [.init(text: prompt)])
+            .init(role: "user", parts: [.init(text: prompt)])
         ])
 
         var urlRequest = URLRequest(url: url)
@@ -107,5 +113,97 @@ class GeminiService {
 
         let decoded = try JSONDecoder().decode(GenerateContentResponse.self, from: data)
         return decoded.candidates?.first?.content?.parts?.first?.text ?? ""
+    }
+
+    /// Streams a text response for the given prompt, yielding incremental text chunks.
+    func generateContentStream(prompt: String, model: String, apiKey: String) -> AsyncThrowingStream<String, Error> {
+        AsyncThrowingStream { continuation in
+            Task {
+                do {
+                    guard !apiKey.isEmpty else { throw URLError(.userAuthenticationRequired) }
+                    guard !model.isEmpty else { throw URLError(.badURL) }
+
+                    let urlString = "https://generativelanguage.googleapis.com/v1beta/\(model):streamGenerateContent?alt=sse&key=\(apiKey)"
+                    guard let url = URL(string: urlString) else { throw URLError(.badURL) }
+
+                    let request = GenerateContentRequest(contents: [
+                        .init(role: "user", parts: [.init(text: prompt)])
+                    ])
+
+                    var urlRequest = URLRequest(url: url)
+                    urlRequest.httpMethod = "POST"
+                    urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                    urlRequest.httpBody = try JSONEncoder().encode(request)
+
+                    let (bytes, response) = try await URLSession.shared.bytes(for: urlRequest)
+                    guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                        throw URLError(.badServerResponse)
+                    }
+
+                    for try await line in bytes.lines {
+                        let trimmed = line.trimmingCharacters(in: .whitespaces)
+                        guard trimmed.hasPrefix("data:") else { continue }
+                        let payload = String(trimmed.dropFirst(5)).trimmingCharacters(in: .whitespaces)
+                        if payload.isEmpty || payload == "[DONE]" { continue }
+                        if let data = payload.data(using: .utf8),
+                           let decoded = try? JSONDecoder().decode(GenerateContentResponse.self, from: data),
+                           let text = decoded.candidates?.first?.content?.parts?.first?.text {
+                            continuation.yield(text)
+                        }
+                    }
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+        }
+    }
+
+    /// Streams a text response using the full conversation history for context.
+    func generateContentStream(history: [ChatMessage], model: String, apiKey: String) -> AsyncThrowingStream<String, Error> {
+        AsyncThrowingStream { continuation in
+            Task {
+                do {
+                    guard !apiKey.isEmpty else { throw URLError(.userAuthenticationRequired) }
+                    guard !model.isEmpty else { throw URLError(.badURL) }
+
+                    let contents = history.compactMap { message -> GenerateContentRequest.Content? in
+                        guard let text = message.content, !text.isEmpty else { return nil }
+                        let role = (message.role == "user") ? "user" : "model"
+                        return .init(role: role, parts: [.init(text: text)])
+                    }
+
+                    let urlString = "https://generativelanguage.googleapis.com/v1beta/\(model):streamGenerateContent?alt=sse&key=\(apiKey)"
+                    guard let url = URL(string: urlString) else { throw URLError(.badURL) }
+
+                    let request = GenerateContentRequest(contents: contents)
+
+                    var urlRequest = URLRequest(url: url)
+                    urlRequest.httpMethod = "POST"
+                    urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                    urlRequest.httpBody = try JSONEncoder().encode(request)
+
+                    let (bytes, response) = try await URLSession.shared.bytes(for: urlRequest)
+                    guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                        throw URLError(.badServerResponse)
+                    }
+
+                    for try await line in bytes.lines {
+                        let trimmed = line.trimmingCharacters(in: .whitespaces)
+                        guard trimmed.hasPrefix("data:") else { continue }
+                        let payload = String(trimmed.dropFirst(5)).trimmingCharacters(in: .whitespaces)
+                        if payload.isEmpty || payload == "[DONE]" { continue }
+                        if let data = payload.data(using: .utf8),
+                           let decoded = try? JSONDecoder().decode(GenerateContentResponse.self, from: data),
+                           let text = decoded.candidates?.first?.content?.parts?.first?.text {
+                            continuation.yield(text)
+                        }
+                    }
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+        }
     }
 }
