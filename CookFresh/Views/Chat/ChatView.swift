@@ -8,26 +8,37 @@
 import SwiftUI
 public import Combine
 
+
 struct ChatView: View {
     @State private var input: String = ""
     
     @AppStorage("FreshCookModel") private var selectedModel: String = ""
     @AppStorage("FreshCookModelDescription") private var selectedModelDescription: String = ""
-    
+    @AppStorage("gemini_api_key") private var apiKey: String = ""
+
     @State private var isGenerating: Bool = false
     @State private var gernerationStart: Date?
+    @State private var messages: [ChatMessage] = []
     
     var body: some View {
-        Spacer()
-        if isGenerating {
-            GeneratingIndicator(
-                isGenerating: $isGenerating,
-                startDate: gernerationStart ?? Date()
-            )
-        }
-        VStack {
-            // Container für TextEditor und integrierten Send-Button
-            HStack(alignment: .bottom, spacing: 8) {
+        VStack(spacing: 0) {
+            if isGenerating {
+                GeneratingIndicator(
+                    isGenerating: $isGenerating,
+                    startDate: gernerationStart ?? Date()
+                )
+            }
+            ScrollView {
+                LazyVStack(spacing: 8) {
+                    ForEach(messages) { message in
+                        MessageBubble(message: message)
+                    }
+                }
+                .padding()
+            }
+            // Container für TextEditor und integrierten Send-Button (fest am unteren Rand)
+            VStack(spacing: 0) {
+                HStack(alignment: .bottom, spacing: 8) {
                 ZStack(alignment: .topLeading) {
                     if input.isEmpty {
                         Text("Message...")
@@ -83,10 +94,27 @@ struct ChatView: View {
         )
         .padding()
     }
+    }
     
     private func send() async {
         isGenerating = true
         gernerationStart = Date()
+        let prompt = input
+        let start = Date()
+        input = ""
+        messages.append(ChatMessage(role: "user", content: prompt, timestamp: Date()))
+        do {
+            let result = try await GeminiService.shared.generateContent(
+                prompt: prompt,
+                model: selectedModel,
+                apiKey: apiKey
+            )
+            let elapsed = Int(Date().timeIntervalSince(start) * 1000)
+            messages.append(ChatMessage(role: "assistant", content: result, timestamp: Date(), responseTime: elapsed))
+        } catch {
+            messages.append(ChatMessage(role: "assistant", content: "Fehler: \(error.localizedDescription)", timestamp: Date()))
+        }
+        isGenerating = false
     }
 }
 
