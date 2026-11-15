@@ -17,7 +17,7 @@ struct RootView: View {
             SidebarView(selectedSession: $selectedSession)
                 .frame(minWidth: 200)
         } detail: {
-            ChatView()
+            ChatView(selectedSession: $selectedSession)
         }
     }
 }
