@@ -23,6 +23,7 @@ xcodebuild -project CookFresh.xcodeproj -scheme CookFresh -destination 'platform
 
 - Program Apple-conformant: follow Apple Developer documentation and standard SwiftUI/macOS patterns. No experimental workarounds or hallucinated APIs.
 - Explain every change and its rationale before applying it.
+- Commit messages must be detailed and written in German.
 
 ## Gotchas
 
