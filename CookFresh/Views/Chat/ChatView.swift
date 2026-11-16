@@ -25,12 +25,6 @@ struct ChatView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            if isGenerating {
-                GeneratingIndicator(
-                    isGenerating: $isGenerating,
-                    startDate: gernerationStart ?? Date()
-                )
-            }
             if selectedSession == nil {
                 VStack {
                     Spacer()
@@ -74,6 +68,12 @@ struct ChatView: View {
 
             
             HStack {
+                if isGenerating {
+                    GeneratingIndicator(
+                        isGenerating: $isGenerating,
+                        startDate: gernerationStart ?? Date()
+                    )
+                }
                 Spacer()
                 Text(selectedModelDescription)
                     .font(.caption)
