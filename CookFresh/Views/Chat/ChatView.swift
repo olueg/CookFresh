@@ -33,13 +33,35 @@ struct ChatView: View {
                     Spacer()
                 }
             } else {
-                ScrollView {
-                    LazyVStack(spacing: 8) {
-                        ForEach(selectedSession?.messages ?? []) { message in
-                            MessageBubble(message: message)
+                // ScrollViewReader ermöglicht das Automatische scrollen an das ende
+                ScrollViewReader{ proxy in
+                    ScrollView {
+                        LazyVStack(spacing: 8) {
+                            ForEach(selectedSession?.messages ?? []) { message in
+                                MessageBubble(message: message)
+                            }
+                            // Unsichtbarer Anker am Ende des ScrollView
+                            Color.clear
+                                .frame(height: 1)
+                                .id("bottom")
+                        }
+                        .padding()
+                    }
+                    // WICHTIG: Wir triggern auf beides: Anzahl Nachrichten ODER Generierungs-Status
+                    .onChange(of: selectedSession?.messages.count) {
+                        proxy.scrollTo("bottom", anchor: .bottom)
+                    }
+                    .onChange(of: isGenerating) {
+                        if isGenerating {
+                            proxy.scrollTo("bottom", anchor: .bottom)
                         }
                     }
-                    .padding()
+                    // Falls das während des Streamings noch stockt, füge das hier hinzu:
+                    .onChange(of: selectedSession?.messages.last?.content) {
+                        if isGenerating {
+                            proxy.scrollTo("bottom", anchor: .bottom)
+                        }
+                    }
                 }
             }
             // Container für TextEditor und integrierten Send-Button (fest am unteren Rand)
@@ -211,3 +233,4 @@ struct GeneratingIndicator: View {
         
     }
 }
+
