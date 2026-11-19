@@ -3,8 +3,8 @@
 //  CookFresh
 //
 //  Created by Olaf Lueg on 06.11.26.
-//
-// Licence: MIT
+//  Copyright © 2026 Olaf Lueg. All rights reserved.
+//  Licensed under the MIT License.
 
 
 import SwiftUI
