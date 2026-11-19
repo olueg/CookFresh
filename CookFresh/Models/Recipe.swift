@@ -3,8 +3,10 @@
 //  CookFresh
 //
 //  Created by Olaf Lueg on 19.11.26.
-//  Copyright (C) 2026 by Olaf Lueg
-//  License MIT
+//
+//  Copyright © 2026 Olaf Lueg. All rights reserved.
+//  Licensed under the MIT License.
+
 
 import Foundation
 import SwiftData
