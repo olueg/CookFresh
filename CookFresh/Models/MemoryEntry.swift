@@ -48,16 +48,16 @@ final class MemoryEntry {
     var importance: Int                             // 1 (nice-to-have) bis 5 (strikes Tabu/Allergie)
     var createdAt: Date
     var lastUsedAt: Date
-    var relatedReceipID: UUID?                      // Optional: Verknüpfung zu einem bestimmten Rezept
+    var relatedRecipeID: UUID?                      // Optional: Verknüpfung zu einem bestimmten Rezept
     
-    init(fact: String, category: MemoryCategory, importance: Int = 3, relatedReceipID: UUID? = nil) {
+    init(fact: String, category: MemoryCategory, importance: Int = 3, relatedRecipeID: UUID? = nil) {
         self.id = UUID()
         self.fact = fact
         self.category = category
         self.importance = importance
         self.createdAt = .now
         self.lastUsedAt = .now
-        self.relatedReceipID = relatedReceipID
+        self.relatedRecipeID = relatedRecipeID
     }
 }
 
