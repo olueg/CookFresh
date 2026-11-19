@@ -1,3 +1,18 @@
+/*
+                       Recipe.swift  -  description
+                          -------------------
+ begin                : Thu Nov 19 2026
+ copyright            : (C) 2026 by Olaf Lueg
+ discussions          : https://github.com/olueg/CookFresh/discussions
+***************************************************************************/
+
+/*
+ *                                                                         *
+ *   This software is released under the MIT License.                      *
+ *   See the LICENSE file for full details.                                 *
+ *                                                                         *
+ ***************************************************************************/
+
 //
 //  Recipe.swift
 //  CookFresh
@@ -10,7 +25,7 @@ import SwiftData
 
 @Model
 final class Recipe {
-    @Attribute(.unique) var ID: UUID
+    @Attribute(.unique) var id: UUID
     
     var title: String
     var category: String                            // z.B. "Hauptgericht", "Nachtisch"
@@ -24,7 +39,7 @@ final class Recipe {
     var prepTimeMinutes: Int
     
     init( title: String, category: String, tags: [String], prepTimeMinutes: Int ) {
-        self.ID = UUID()
+        self.id = UUID()
         self.title = title
         self.category = category
         self.tags = tags

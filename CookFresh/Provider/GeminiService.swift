@@ -1,3 +1,18 @@
+/*
+                       GeminiService.swift  -  description
+                          -------------------
+ begin                : Sat Nov  7 2026
+ copyright            : (C) 2026 by Olaf Lueg
+ discussions          : https://github.com/olueg/CookFresh/discussions
+***************************************************************************/
+
+/*
+ *                                                                         *
+ *   This software is released under the MIT License.                      *
+ *   See the LICENSE file for full details.                                 *
+ *                                                                         *
+ ***************************************************************************/
+
 //
 //  GeminiService.swift
 //  CookFresh
