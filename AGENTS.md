@@ -15,7 +15,8 @@ xcodebuild -project CookFresh.xcodeproj -scheme CookFresh -destination 'platform
 ## Architecture
 
 - Entry point: `CookFresh/CookFreshApp.swift` — `WindowGroup` hosts `RootView`, plus a separate `Settings` scene hosting `SettingsView`.
-- Data: SwiftData. `ModelContainer` schema: `ChatMessage`, `ChatSession`, `GeminiServiceModel` (see `CookFreshApp.swift`).
+- AI: `GeminiService` provides model fetching and streaming text generation with conversation history. Chat sessions/messages persisted via SwiftData.
+- Data: SwiftData. `ModelContainer` schema: `ChatMessage`, `ChatSession`, `GeminiServiceModel`, `MemoryEntry`, `Recipe` (see `CookFreshApp.swift`).
 - Concurrency: `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` and approachable concurrency are enabled. SwiftUI views and `@Observable` services are MainActor by default; keep async work in `Task`/`.task`.
 - Localization via `CookFresh/Localizable.xcstrings` (string catalog, symbol generation on). Scheme launch language is German (`de`).
 
