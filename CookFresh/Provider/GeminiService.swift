@@ -136,8 +136,15 @@ class GeminiService {
                     urlRequest.httpBody = try JSONEncoder().encode(request)
 
                     let (bytes, response) = try await URLSession.shared.bytes(for: urlRequest)
-                    guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                    guard let httpResponse = response as? HTTPURLResponse else {
                         throw URLError(.badServerResponse)
+                    }
+                    guard httpResponse.statusCode == 200 else {
+                        var bodyLines: [String] = []
+                        for try await l in bytes.lines { bodyLines.append(l) }
+                        let body = bodyLines.joined(separator: "\n")
+                        print("Gemini stream error \(httpResponse.statusCode): \(body)")
+                        throw NSError(domain: "GeminiService", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "HTTP \(httpResponse.statusCode): \(body)"])
                     }
 
                     for try await line in bytes.lines {
@@ -185,8 +192,15 @@ class GeminiService {
                     urlRequest.httpBody = try JSONEncoder().encode(request)
 
                     let (bytes, response) = try await URLSession.shared.bytes(for: urlRequest)
-                    guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                    guard let httpResponse = response as? HTTPURLResponse else {
                         throw URLError(.badServerResponse)
+                    }
+                    guard httpResponse.statusCode == 200 else {
+                        var bodyLines: [String] = []
+                        for try await l in bytes.lines { bodyLines.append(l) }
+                        let body = bodyLines.joined(separator: "\n")
+                        print("Gemini stream error \(httpResponse.statusCode): \(body)")
+                        throw NSError(domain: "GeminiService", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "HTTP \(httpResponse.statusCode): \(body)"])
                     }
 
                     for try await line in bytes.lines {
