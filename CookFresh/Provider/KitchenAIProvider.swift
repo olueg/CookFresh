@@ -18,6 +18,13 @@ protocol KitchenAIProvider {
     func executeTask(task: String, context: String) async throws -> String
 }
 
+/// DTO für extrahierte Fakten aus dem Gedächtnis-Lernen (category als String für robustes Decoding).
+struct RawExtractedFact: Codable, Sendable {
+    let fact: String
+    let category: String
+    let importance: Int
+}
+
 /// DTO für extrahierte Fakten aus dem Gedächtnis-Lernen.
 struct ExtractedFact: Codable, Sendable {
     let fact: String

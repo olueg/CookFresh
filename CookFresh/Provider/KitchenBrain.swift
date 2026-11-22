@@ -88,11 +88,12 @@ final class KitchenBrain {
             }
 
             guard let data = cleaned.data(using: .utf8) else { return }
-            let extracted = try JSONDecoder().decode([ExtractedFact].self, from: data)
+            let raws = try JSONDecoder().decode([RawExtractedFact].self, from: data)
 
             var firstEntry: MemoryEntry?
-            for fact in extracted {
-                let entry = MemoryEntry(fact: fact.fact, category: fact.category, importance: fact.importance)
+            for raw in raws {
+                guard let category = MemoryCategory.fromAI(raw.category) else { continue }
+                let entry = MemoryEntry(fact: raw.fact, category: category, importance: raw.importance)
                 modelContext.insert(entry)
                 if firstEntry == nil { firstEntry = entry }
             }

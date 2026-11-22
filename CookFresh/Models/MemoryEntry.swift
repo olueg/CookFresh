@@ -12,7 +12,7 @@ import SwiftData
 enum MemoryCategory: String, Codable, CaseIterable, Identifiable {
     
     case allergyOrTaboo = "Allergien & Tabu"            // z.B. "Kein Koriander"
-    case ingredientRef = "Zutaten-Vorliebe"             // z.B. "Liebt gerösteten Knoblauch"
+    case ingredientPref = "Zutaten-Vorliebe"             // z.B. "Liebt gerösteten Knoblauch"
     case dessertRule = "Nachtisch-Regel"                // z.B. "Nach Pasta lieber Pudding statt Eis
     case cookingHabit = "Kochgewohnheit"                // z.B. "Unter der Woche max. 25 Min."
     case recipeNote = "Rezept-Anpassung"                // z.B. "Bei Lasange doppelte Menge Bechamel"
@@ -26,7 +26,7 @@ enum MemoryCategory: String, Codable, CaseIterable, Identifiable {
         switch self {
         case .allergyOrTaboo:
             return "exclamationmark.triangle.fill"
-        case .ingredientRef:
+        case .ingredientPref:
             return "heart.fill"
         case .dessertRule:
             return "birthday.cake.fill"
@@ -36,7 +36,18 @@ enum MemoryCategory: String, Codable, CaseIterable, Identifiable {
             return "note.text"
         }
     }
-    
+
+    /// Maps AI-returned category strings (case names) to enum cases.
+    static func fromAI(_ value: String) -> MemoryCategory? {
+        switch value {
+        case "allergyOrTaboo": return .allergyOrTaboo
+        case "ingredientPref": return .ingredientPref
+        case "dessertRule": return .dessertRule
+        case "cookingHabit": return .cookingHabit
+        case "recipeNote": return .recipeNote
+        default: return nil
+        }
+    }
 }
 
 @Model
