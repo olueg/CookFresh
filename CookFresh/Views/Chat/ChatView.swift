@@ -15,6 +15,7 @@ struct ChatView: View {
     @Environment(\.modelContext) private var modelContext
 
     @State private var input: String = ""
+    
 
     @AppStorage("FreshCookModel") private var selectedModel: String = ""
     @AppStorage("FreshCookModelDescription") private var selectedModelDescription: String = ""
@@ -22,8 +23,12 @@ struct ChatView: View {
 
     @State private var isGenerating: Bool = false
     @State private var gernerationStart: Date?
+    @State private var showError: Bool = false
+    @State private var errorText: String = ""
+    @State private var brain = KitchenBrain(geminiAPIKey: UserDefaults.standard.string(forKey: "gemini_api_key"))
     
     var body: some View {
+        
         VStack(spacing: 0) {
             if selectedSession == nil {
                 VStack {
@@ -159,6 +164,24 @@ struct ChatView: View {
         try? modelContext.save()
 
         do {
+            // Hier nutzen wir den KitchenBrain, der sich um Hybrid-Routing & Gedächtnis kümmert
+            let result = try await brain.askAssistant(prompt: prompt, modelContext: modelContext)
+            
+            // Antwort verarbeiten
+            assistantMessage.content = result.mainCourseTitle + "\n\n" + result.explanation
+            try? modelContext.save()
+            let elapsed = Int(Date().timeIntervalSince(start) * 1000)
+            assistantMessage.responseTime = elapsed
+            try? modelContext.save()
+            
+        } catch {
+            print("ChatView send error: \(error)")
+            assistantMessage.content = "Fehler: \(error.localizedDescription)"
+            try? modelContext.save()
+        }
+        
+        /* ersetzt durch KitchenBrain
+        do {
             let history = session.messages.filter { !($0.content?.isEmpty ?? true) }
             let stream = GeminiService.shared.generateContentStream(
                 history: history,
@@ -184,6 +207,7 @@ struct ChatView: View {
             assistantMessage.content = "Fehler: \(error.localizedDescription)"
             try? modelContext.save()
         }
+         */
         isGenerating = false
     }
 }

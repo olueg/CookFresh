@@ -28,15 +28,22 @@ struct GeminiProvider: KitchenAIProvider {
             prompt: prompt, model: model, apiKey: apiKey
         )
         // JSON aus der Antwort extrahieren (zwischen { und })
-        guard let start = text.firstIndex(of: "{"),
-              let end = text.lastIndex(of: "}") else {
-            throw URLError(.cannotDecodeContentData)
+        // Versuche, JSON aus der Antwort zu extrahieren
+        if let start = text.firstIndex(of: "{"),
+           let end = text.lastIndex(of: "}") {
+            let jsonString = String(text[start...end])
+            if let data = jsonString.data(using: .utf8),
+               let suggestion = try? JSONDecoder().decode(MenuSuggestion.self, from: data) {
+                return suggestion
+            }
         }
-        let jsonString = String(text[start...end])
-        guard let data = jsonString.data(using: .utf8) else {
-            throw URLError(.cannotDecodeContentData)
-        }
-        return try JSONDecoder().decode(MenuSuggestion.self, from: data)
+        // Fallback: Rohtext als Antwort verwenden
+        return MenuSuggestion(
+            mainCourseTitle: text,
+            dessertTitle: nil,
+            explanation: text,
+            appliedMemories: []
+        )
     }
 
     func executeTask(task: String, context: String) async throws -> String {
