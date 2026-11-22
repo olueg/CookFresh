@@ -63,8 +63,6 @@ class GeminiService {
     
     
     
-    
-    
     // Get a list of available models
     func fetchGeminiModels(apiKey: String) async throws -> [GeminiModel] {
         let urlString = "https://generativelanguage.googleapis.com/v1beta/models?key=\(apiKey)"
@@ -88,8 +86,9 @@ class GeminiService {
     func generateContent(prompt: String, model: String, apiKey: String) async throws -> String {
         guard !apiKey.isEmpty else { throw URLError(.userAuthenticationRequired) }
         guard !model.isEmpty else { throw URLError(.badURL) }
+        let resolvedModel = model.hasPrefix("models/") ? model : "models/\(model)"
 
-        let urlString = "https://generativelanguage.googleapis.com/v1beta/\(model):generateContent?key=\(apiKey)"
+        let urlString = "https://generativelanguage.googleapis.com/v1beta/\(resolvedModel):generateContent?key=\(apiKey)"
         guard let url = URL(string: urlString) else { throw URLError(.badURL) }
 
         let request = GenerateContentRequest(contents: [
@@ -122,8 +121,9 @@ class GeminiService {
                 do {
                     guard !apiKey.isEmpty else { throw URLError(.userAuthenticationRequired) }
                     guard !model.isEmpty else { throw URLError(.badURL) }
+        let resolvedModel = model.hasPrefix("models/") ? model : "models/\(model)"
 
-                    let urlString = "https://generativelanguage.googleapis.com/v1beta/\(model):streamGenerateContent?alt=sse&key=\(apiKey)"
+                    let urlString = "https://generativelanguage.googleapis.com/v1beta/\(resolvedModel):streamGenerateContent?alt=sse&key=\(apiKey)"
                     guard let url = URL(string: urlString) else { throw URLError(.badURL) }
 
                     let request = GenerateContentRequest(contents: [
@@ -166,6 +166,7 @@ class GeminiService {
                 do {
                     guard !apiKey.isEmpty else { throw URLError(.userAuthenticationRequired) }
                     guard !model.isEmpty else { throw URLError(.badURL) }
+        let resolvedModel = model.hasPrefix("models/") ? model : "models/\(model)"
 
                     let contents = history.compactMap { message -> GenerateContentRequest.Content? in
                         guard let text = message.content, !text.isEmpty else { return nil }
@@ -173,7 +174,7 @@ class GeminiService {
                         return .init(role: role, parts: [.init(text: text)])
                     }
 
-                    let urlString = "https://generativelanguage.googleapis.com/v1beta/\(model):streamGenerateContent?alt=sse&key=\(apiKey)"
+                    let urlString = "https://generativelanguage.googleapis.com/v1beta/\(resolvedModel):streamGenerateContent?alt=sse&key=\(apiKey)"
                     guard let url = URL(string: urlString) else { throw URLError(.badURL) }
 
                     let request = GenerateContentRequest(contents: contents)
