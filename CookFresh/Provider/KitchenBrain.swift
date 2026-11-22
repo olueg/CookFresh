@@ -73,9 +73,21 @@ final class KitchenBrain {
     private func learnFromUserInput(_ text: String, modelContext: ModelContext) async {
         do {
             let provider: any KitchenAIProvider = cloudProvider != nil ? cloudProvider! : localProvider
-            let jsonString = try await provider.executeTask(task: "Extrahiere neue Fakten", context: text)
+            let raw = try await provider.executeTask(task: "Extrahiere neue Fakten", context: text)
 
-            guard let data = jsonString.data(using: .utf8) else { return }
+            // Markdown-Code-Fences (```json ... ```) entfernen
+            var cleaned = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            if cleaned.hasPrefix("```") {
+                if let firstNewline = cleaned.firstIndex(of: "\n") {
+                    cleaned = String(cleaned[cleaned.index(after: firstNewline)...])
+                }
+                if let lastFence = cleaned.range(of: "```", options: .backwards) {
+                    cleaned = String(cleaned[..<lastFence.lowerBound])
+                }
+                cleaned = cleaned.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+
+            guard let data = cleaned.data(using: .utf8) else { return }
             let extracted = try JSONDecoder().decode([ExtractedFact].self, from: data)
 
             var firstEntry: MemoryEntry?
