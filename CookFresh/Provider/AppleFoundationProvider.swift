@@ -16,21 +16,26 @@ struct AppleFoundationProvider: KitchenAIProvider {
         // Hinweis: Apple's APIs nutzen hier oft Generable-Strukturen für JSON-Output
         // Wir simulieren hier die Rückgabe
         // Apple's "Magic": Die KI wird gezwungen, diese Struktur zurückzugeben.
-            let response = try await session.respond(to: userPrompt, generating: AppleMenuOutput.self)
-            
-            let out = response.content
-            return MenuSuggestion(
-                mainCourseTitle: out.mainCourseTitle,
-                dessertTitle: out.dessertTitle,
-                explanation: out.explanation,
-                appliedMemories: out.appliedMemories
-            )
+        let response = try await session.respond(to: userPrompt, generating: AppleMenuOutput.self)
+        
+        let out = response.content
+        return MenuSuggestion(
+            mainCourseTitle: out.mainCourseTitle,
+            dessertTitle: out.dessertTitle,
+            explanation: out.explanation,
+            appliedMemories: out.appliedMemories
+        )
     }
     
     func executeTask(task: String, context: String) async throws -> String {
-        // Logik für Memory-Extraktion oder Tool-Calls
-        return "Task '\(task)' mit Apple Intelligence ausgeführt."
-    }}
+        let session = LanguageModelSession(instructions: "Du bist ein Analyse-Tool. Aufgabe: \(task)")
+        let response = try await session.respond(to: context, generating: MemoryExtractionList.self)
+        let data = try JSONEncoder().encode(response.content)
+        return String(data: data, encoding: .utf8) ?? "[]"
+    }
+}
+
+
 
 // Apple Foundation Models benötigt eine Struktur, die mit @Generable markiert ist
 // Schma-Strukturen für die Menu-Vorschläge
@@ -51,7 +56,7 @@ struct AppleMenuOutput {
 
 // Und für die Memory-Extraktion:
 @Generable
-struct AppleExtractedMemory {
+struct AppleExtractedMemory: Codable {
     @Guide(description: "Prägnant formulierter Fakt über den Nutzer, z.B. 'Mag kein Koriander'")
     var fact: String
     
@@ -63,6 +68,6 @@ struct AppleExtractedMemory {
 }
 
 @Generable
-struct MemoryExtractionList {
+struct MemoryExtractionList: Codable{
     var items: [AppleExtractedMemory]
 }

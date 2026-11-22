@@ -9,44 +9,92 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
 @MainActor
 @Observable
 final class KitchenBrain {
-    
-    // Initialisierung der Provider
-    private let localProvider = AppleFoundationProvider()
-    private let cloudProvider: GeminiProvider?
-    
-    var isThinking: Bool = false
-    
-    init(geminiAPIKey: String? = nil){
+    // Verfügbare Provider
+    private let localProvider: any KitchenAIProvider = AppleFoundationProvider()
+    private var cloudProvider: (any KitchenAIProvider)?
+
+    // UI-State
+    var isThinking = false
+    var recentlyLearnedMemory: MemoryEntry?
+
+    init(geminiAPIKey: String? = nil, model: String = "gemini-2.5-flash") {
         if let key = geminiAPIKey, !key.isEmpty {
-            self.cloudProvider = GeminiProvider(apiKey: key)
-        } else {
-          self.cloudProvider = nil
+            self.cloudProvider = GeminiProvider(apiKey: key, model: model)
         }
     }
     
-    /// Hauptfunktion: Die KI-Logik aus der View heraus aufrufen
-        func askAssistant(prompt: String, modelContext: ModelContext) async throws -> MenuSuggestion {
-            isThinking = true
-            defer { isThinking = false }
-            
-            // 1. Kontext aus SwiftData (MemoryEntry & Rezepte) zusammenbauen
-            // let context = MemoryContextBuilder.buildContext(...)
-            let context = "Hier würde der Kontext aus dem MemoryContextBuilder stehen."
-            
-            // 2. Gehirn (Apple Intelligence): Analysiere den Kontext & Extrahiere Tasks
-            // z.B. "Welche Regeln sind für diesen Prompt wichtig?"
-            _ = try await localProvider.executeTask(task: "Analysiere Kontext", context: context)
-            
-            // 3. Küchenchef (Gemini): Generiere das Rezept
-            // Falls Cloud nicht verfügbar, fällt das System auf Lokal zurück (oder wirft Fehler)
-            if let cloud = cloudProvider {
-                return try await cloud.suggestMenu(userPrompt: prompt, context: context)
-            } else {
-                // Fallback auf Apple-Modelle, falls kein Gemini vorhanden
-                return try await localProvider.suggestMenu(userPrompt: prompt, context: context)
+    /// Hauptfunktion: Menüvorschlag basierend auf Prompt und SwiftData-Kontext
+    func askAssistant(
+        prompt: String,
+        modelContext: ModelContext
+    ) async throws -> MenuSuggestion {
+        isThinking = true
+        defer { isThinking = false }
+        
+        // 1. Kontext aus SwiftData abrufen
+        let memories = try modelContext.fetch(FetchDescriptor<MemoryEntry>())
+        memories.forEach { print($0.fact) }
+        print("Memories: \(memories)")
+        let recipes = try modelContext.fetch(FetchDescriptor<Recipe>())
+        
+        let recent = recipes
+            .filter { $0.lastCookedDate != nil }
+            .sorted { ($0.lastCookedDate ?? .distantPast) > ($1.lastCookedDate ?? .distantPast) }
+            .prefix(5)
+        
+        let favoriteDesserts = recipes.filter { $0.isFavorite && $0.category.lowercased().contains("nachtisch") }
+        
+        let contextString = MemoryContextBuilder.buildContext(
+            memories: memories,
+            recentRecipes: Array(recent),
+            favoriteDesserts: favoriteDesserts
+        )
+        
+        // 2. Entscheidung: Cloud (Gemini) vs Lokal (Apple)
+        // Hier kannst du die Logik für das Routing einbauen
+        let suggestion: MenuSuggestion
+        let provider: any KitchenAIProvider = cloudProvider != nil ? cloudProvider! : localProvider
+        suggestion = try await provider.suggestMenu(userPrompt: prompt, context: contextString)
+        
+        // 3. Im Hintergrund lernen
+        Task {
+            await learnFromUserInput(prompt, modelContext: modelContext)
+        }
+        
+        return suggestion
+    }
+    
+    /// Extrahiert automatisch neue Fakten und speichert sie
+    private func learnFromUserInput(_ text: String, modelContext: ModelContext) async {
+        do {
+            let provider: any KitchenAIProvider = cloudProvider != nil ? cloudProvider! : localProvider
+            let jsonString = try await provider.executeTask(task: "Extrahiere neue Fakten", context: text)
+
+            guard let data = jsonString.data(using: .utf8) else { return }
+            let extracted = try JSONDecoder().decode([ExtractedFact].self, from: data)
+
+            var firstEntry: MemoryEntry?
+            for fact in extracted {
+                let entry = MemoryEntry(fact: fact.fact, category: fact.category, importance: fact.importance)
+                modelContext.insert(entry)
+                if firstEntry == nil { firstEntry = entry }
             }
-        }}
+            try? modelContext.save()
+
+            self.recentlyLearnedMemory = firstEntry
+        } catch {
+            print("Fehler beim Lernen: \(error)")
+        }
+    }
+    
+    func undoLearnedMemory(_ entry: MemoryEntry, modelContext: ModelContext) {
+        modelContext.delete(entry)
+        try? modelContext.save()
+        recentlyLearnedMemory = nil
+    }
+}

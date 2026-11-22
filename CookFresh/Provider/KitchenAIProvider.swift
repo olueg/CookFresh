@@ -18,6 +18,13 @@ protocol KitchenAIProvider {
     func executeTask(task: String, context: String) async throws -> String
 }
 
+/// DTO für extrahierte Fakten aus dem Gedächtnis-Lernen.
+struct ExtractedFact: Codable, Sendable {
+    let fact: String
+    let category: MemoryCategory
+    let importance: Int
+}
+
 /// Struktur für die Antwort der KI, damit die UI und Logik konsistent bleiben.
 struct MenuSuggestion: Codable, Sendable {
     let mainCourseTitle: String                         // Titel des Hauptgerichtes
