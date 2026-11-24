@@ -12,7 +12,7 @@ import SwiftData
 struct CookFreshApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            ChatMessage.self, ChatSession.self, GeminiServiceModel.self, MemoryEntry.self,
+            ChatMessage.self, ChatSession.self, GeminiServiceModel.self, MemoryEntry.self, Recipe.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -28,6 +28,9 @@ struct CookFreshApp: App {
             RootView()
         }
         .modelContainer(sharedModelContainer)
+        .commands {
+             SidebarCommands()
+         }
         Settings{
             SettingsView()
                 .background(.ultraThinMaterial) // Das gibt dir den "Apple-Look" für das ganze Fenster

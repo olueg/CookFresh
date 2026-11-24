@@ -19,6 +19,25 @@ struct RootView: View {
         } detail: {
             ChatView(selectedSession: $selectedSession)
         }
+        .inspector(isPresented: .constant(true)){
+            
+        }
+        .onAppear() {
+            printAllMemories()
+        }
+    }
+    
+    func printAllMemories() {
+        do {
+            let descriptor = FetchDescriptor<MemoryEntry>()
+            let memories = try modelContext.fetch(descriptor)
+            print("=== Memories (\(memories.count)) ===")
+            memories.forEach { memory in
+                print("[\(memory.category.rawValue)] \(memory.fact) (Wichtigkeit: \(memory.importance))")
+            }
+        } catch {
+            print("Fehler beim Laden der Erinnerungen: \(error)")
+        }
     }
 }
 
