@@ -46,7 +46,7 @@ struct RecipeFeaturedItemView: View {
     
     let sampleRecipe = Recipe(
         title: "Gänsebraten",
-        category: "Hauptgericht",
+        category: RecipeCategory.mainCourse,
         tags: ["Tasty and quick"],
         prepTimeMinutes: 15
     )

@@ -47,7 +47,7 @@ final class KitchenBrain {
             .sorted { ($0.lastCookedDate ?? .distantPast) > ($1.lastCookedDate ?? .distantPast) }
             .prefix(5)
         
-        let favoriteDesserts = recipes.filter { $0.isFavorite && $0.category.lowercased().contains("nachtisch") }
+        let favoriteDesserts = recipes.filter { $0.isFavorite && $0.category.rawValue.contains("Hauptgericht") }
         
         let contextString = MemoryContextBuilder.buildContext(
             memories: memories,
