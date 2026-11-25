@@ -11,12 +11,23 @@
 import Foundation
 import SwiftData
 
+enum RecipeCategory: String, Codable, CaseIterable, Identifiable {
+    case mainCourse = "Hauptgericht"
+    case dessert = "Nachtisch"
+    case soup = "Suppe"
+    case appetizer = "Appetizer"
+    case drink = "Getränk"
+    case other = "Sonstiges"
+    
+    var id: String { rawValue }
+}
+
 @Model
 final class Recipe {
     @Attribute(.unique) var id: UUID
     
     var title: String
-    var category: String                            // z.B. "Hauptgericht", "Nachtisch"
+    var category: RecipeCategory                    // z.B. "Hauptgericht", "Nachtisch"
     var tags: [String]                              // z.B. ["fruchtig", "leicht", "schnell"]
     
     // Tracking-Informationen für das KI-Gedächtniss
@@ -26,7 +37,7 @@ final class Recipe {
     
     var prepTimeMinutes: Int
     
-    init( title: String, category: String, tags: [String], prepTimeMinutes: Int ) {
+    init( title: String, category: RecipeCategory, tags: [String], prepTimeMinutes: Int ) {
         self.id = UUID()
         self.title = title
         self.category = category
