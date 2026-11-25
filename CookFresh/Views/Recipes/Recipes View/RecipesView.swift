@@ -6,10 +6,31 @@
 //
 
 import SwiftUI
+import SwiftData
 
+/// Aview thats shows a featured recipe, and other recipes organized by categories
 struct RecipesView: View {
+    @Environment(\.modelContext) var modelContext
+    
+    @Query(sort: \Recipe.cookCount, order: .reverse) private var recipes: [Recipe]
+    
+    let sampleRecipe = Recipe(
+        title: "Gänsebraten",
+        category: "Hauptgericht",
+        tags: ["Tasty and quick"],
+        prepTimeMinutes: 15
+    )
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        
+        ScrollView(showsIndicators: false) {
+            LazyVStack(alignment: .leading, spacing: Constants.standardPadding ) {
+                
+                RecipeFeaturedItemView(recipe: sampleRecipe)
+                  
+            }
+        }
+        .toolbar(removing: .title)
+
     }
 }
 
