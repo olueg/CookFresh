@@ -37,17 +37,25 @@ struct RecipesView: View {
         
         ScrollView(showsIndicators: false) {
             LazyVStack(alignment: .leading, spacing: Constants.standardPadding ) {
-                
+                // Header mit Featured Rezept
                 RecipeFeaturedItemView(recipe: sampleRecipe)
                     .frame(height: 200)
                 
-                // Ab hier Mockup Daten
-                Group {
-                    Text("Suppen")
-                        .font(.subheadline)
-                        .bold()
-                        .padding()
-                        
+                // Die einzelnen Kategorien
+                ForEach( availableCategories, id: \.self) { category in
+                    VStack(alignment: .leading) {
+                        Text(category.rawValue)
+                            .font(.headline)
+                            .padding(.horizontal)
+                        // Rezepte pro Kategorie
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack( spacing: 12) {
+                                ForEach(recipesByCategory[category] ?? [] ) { recipe in
+                                    RecipeCard(recipe: recipe)
+                                }
+                            }
+                        }
+                    }
                 }
                   
             }
