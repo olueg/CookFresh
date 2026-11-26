@@ -25,7 +25,7 @@ struct CookFreshApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView()
+            CookFreshsSplitView()
         }
         .modelContainer(sharedModelContainer)
         .commands {

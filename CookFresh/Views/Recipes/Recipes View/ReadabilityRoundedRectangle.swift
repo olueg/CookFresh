@@ -1,3 +1,11 @@
+//
+//  ReadabilityRoundedRectangle.swift
+//  CookFresh
+//
+//  Created by Olaf Lueg on 26.11.26.
+//
+
+
 import SwiftUI
 
 /// A view that adds a gradient over an image to improve legibility for a text overlay.

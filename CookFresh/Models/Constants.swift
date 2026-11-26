@@ -19,4 +19,6 @@ struct Constants {
 
     static let learnMorePadding: CGFloat = 6.0
     static let learnMoreBottomPadding: CGFloat = 40.0
+    
+    static let cornerRadius: CGFloat = 10.0
 }

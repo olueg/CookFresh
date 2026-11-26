@@ -33,6 +33,7 @@ struct CookFreshsSplitView: View {
                     page.viewForPage()
                 }
             }
+
             
         } detail: {
             
