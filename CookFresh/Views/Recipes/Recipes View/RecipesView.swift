@@ -51,7 +51,9 @@ struct RecipesView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack( spacing: 12) {
                                 ForEach(recipesByCategory[category] ?? [] ) { recipe in
-                                    RecipeCard(recipe: recipe)
+                                    NavigationLink(value: recipe) {
+                                        RecipeCard(recipe: recipe)
+                                    }
                                 }
                             }
                         }
@@ -61,7 +63,9 @@ struct RecipesView: View {
             }
         }
         .toolbar(removing: .title)
-
+        .navigationDestination(for: Recipe.self) { recipe in
+            RecipeDetailView(recipe: recipe)
+        }
     }
 }
 

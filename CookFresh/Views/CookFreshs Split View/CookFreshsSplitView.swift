@@ -32,9 +32,6 @@ struct CookFreshsSplitView: View {
                 NavigationStack {
                     page.viewForPage()
                 }
-                .navigationDestination(for: Recipe.self) { recipe in
-                    RecipesDetailView()
-                }
             }
             
         } detail: {
@@ -50,6 +47,17 @@ struct CookFreshsSplitView: View {
             ToolbarItem {
                 Button("Info", systemImage: "info"){
                     isPresented.toggle()
+                }
+            }
+            ToolbarItem {
+                Button("Add", systemImage: "plus") {
+                    let recipe = Recipe(title: "New Recipe", category: RecipeCategory.soup, tags: ["Suppe"], prepTimeMinutes: 55)
+                    modelContext.insert(recipe)
+                    do {
+                        try modelContext.save()
+                    } catch {
+                        print("Speichern fehlgeschlagen: \(error)")
+                    }
                 }
             }
         }
