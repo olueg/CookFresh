@@ -27,6 +27,7 @@ xcodebuild -project CookFresh.xcodeproj -scheme CookFresh -destination 'platform
 - Explain every change and its rationale before applying it.
 - Commit messages must be detailed and written in German.
 - Keep AGENTS.md up to date with project changes.
+- Nur Code erklären, keine Code-Änderungen vornehmen – der Nutzer schreibt den Code selbst.
 
 ## Gotchas
 
